@@ -6,7 +6,7 @@ networks:
  
 services:
   api:
-    image: hunch.azurecr.io/hunch-image-classifier:latest
+    image: hunch.azurecr.io/hunch-image-classifier-api:latest
     #build: .
     command: sh -c "uvicorn app.main:app --port=8003 --host=0.0.0.0 --workers=1"
     deploy:
