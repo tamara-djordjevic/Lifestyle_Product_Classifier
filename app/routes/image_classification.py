@@ -3,16 +3,16 @@ from fastapi import APIRouter, BackgroundTasks, File, UploadFile
 from PIL import Image
 from pydantic import BaseModel, Field
 
-from app.models.image_classifier_model import ImageClassifierModel
+from app.models.lifestyle_product_classifier_model import ImageClassifierModel
 
 
 router = APIRouter()
 
-model = ImageClassifierModel('multiclass_mobile')
+model = ImageClassifierModel('lifestyle_classifier')
 
 
 class ImageClassifierResponse(BaseModel):
-    image_category: str = Field(..., alias='imageCategory')
+    isLifestyle: bool = Field(..., alias='isLifestyle')
 
 
 @router.post('/predict')
@@ -24,7 +24,7 @@ async def predict(background_tasks: BackgroundTasks, image_file: UploadFile = Fi
 
     background_tasks.add_task(image_file.file.close)
 
-    return ImageClassifierResponse(imageCategory=image_category_prediction)
+    return ImageClassifierResponse(isLifestyle=image_category_prediction)
 
 
 def parse_image(image_bytes: bytes):
@@ -39,4 +39,9 @@ def parse_image(image_bytes: bytes):
     if pillow_image.mode in ('L', 'I;16'):
         pillow_image = pillow_image.convert('RGB')
 
-    return pillow_image
+    # Save the processed image to a BytesIO object
+    output_buffer = io.BytesIO()
+    pillow_image.save(output_buffer, format='JPEG')
+    image_bytes_output = output_buffer.getvalue()
+
+    return image_bytes_output
